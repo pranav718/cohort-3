@@ -1,2 +1,0 @@
-this is a[dot]txt, this is an example of internal packages
-this is the second line which im writing for testing the CLI which counts the number of lines in the given file

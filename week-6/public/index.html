@@ -1,0 +1,98 @@
+<html>
+    <head>
+        <title>Auth website</title>
+        <style>
+            #userinfo, #logout {
+                display: none;
+            }
+        </style>
+    </head>
+
+    <script src = "https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.6/axios.min.js"></script>
+    <script>
+
+        async function getUserInformation(){
+             const response = await axios.get("http://localhost:3000/me", {
+                headers: {
+                    token: localStorage.getItem("token")
+                }
+            })
+            document.getElementById("information").innerHTML = "Username: " + response.data.username + ", Password: " + response.data.password;
+        }
+
+        async function signup(){
+            const username = document.getElementById("signup-username").value;
+            const password = document.getElementById("signup-password").value;
+
+            await axios.post("http://localhost:3000/signup", {username: username, password: password});
+            alert("You are signed up");
+        }
+
+        async function signin(){
+            const username = document.getElementById("signin-username").value;
+            const password = document.getElementById("signin-password").value;
+
+            const response = await axios.post("http://localhost:3000/signin", {username: username, password: password})
+            localStorage.setItem("token",response.data.token)
+            alert("You are signed in")
+
+            const element1 = document.getElementById("signup");
+            element1.parentNode.removeChild(element1);
+
+            const element2 = document.getElementById("signin");
+            element2.parentNode.removeChild(element2);
+
+            document.getElementById("userinfo").style.display = "block";
+            document.getElementById("logout").style.display = "block";
+            getUserInformation();
+        }
+        
+        function logout(){
+            localStorage.removeItem("token");
+            document.getElementById("userinfo").style.display = "none";
+            document.getElementById("logout").style.display = "none";    // idhar we remove username and logout info if we click logout button and then,
+            
+            location.reload(); //reload to show signup/sigin forms again
+            //signup();
+            //signin();
+        }
+
+    </script>
+
+    <body id = "body">
+        <div id = "signup">
+            Signup
+            <input id = "signup-username" type="text" placeholder="Username"></input>
+            <input id = "signup-password" type = "password" placeholder = "Password"></input>
+            <button onclick = "signup()">Submit</button>
+        </div>
+
+        <div id = "signin">
+            Signin
+            <input id = "signin-username" type="text" placeholder="Username"></input>
+            <input id = "signin-password" type = "password" placeholder = "Password"></input>
+            <button onclick = "signin()">Submit</button>
+        </div>
+        
+        <div id = "userinfo">
+            User information:
+            <div id = "information"></div>
+        </div>
+
+        <div id = "logout">
+            <button onclick = "logout()">Logout</button>
+        </div>
+
+        <script>
+            const token = localStorage.getItem("token");
+            if(!token){
+                document.getElementById("userinfo").style.display = "none";
+                document.getElementById("logout").style.display = "none";
+            }else{
+                getUserInformation();
+            }
+        </script>
+
+    </body>
+
+</html>

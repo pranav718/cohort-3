@@ -9,3 +9,6 @@ npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
+# secret environment files (for .env)
+.env
+.env.*.local

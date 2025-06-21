@@ -7,12 +7,32 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = "pranav123441";
 
 const mongoose = require("mongoose");
+const { z } = require("zod");
+
 mongoose.connect("mongodb+srv://raypranav718:LlEqg79QPeQKg3R9@cluster0.21sjbij.mongodb.net/todo-app-database");   // we have to add the last path to the link
 
 
 app.use(express.json());
 
 app.post("/signup", async function(req,res){
+    // assignment-- check that the password has 1 uppercase char, 1 lowercase char, 1 spl char
+    // go to zod library and figure it out, probably has to write some code like validate and then a function inside it for password
+    const requiredBody = z.object({
+        username: z.string().min(3).max(100).email(),
+        name: z.string().min(3).max(30),
+        name: z.string().min(3).max(100)
+    })
+
+    // const parsedData = requiredBody.parse(req.body) --> we dont use this because it will either give the data or throw an error and stop the program
+    const parsedDataWithSuccess = requiredBody.safeParse(req.body);
+    if(!parsedDataWithSuccess.success){
+        res.json({
+            message: "Incorrect format",
+            error: parsedDataWithSuccess.error
+        })
+        return
+    }
+
     const username = req.body.username;
     const password = req.body.password;
     const name = req.body.name;

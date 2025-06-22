@@ -1,5 +1,6 @@
 const { Router } = require("express");  // express contains a key called router
 const userRouter = Router();
+const { userModel } = require('../db')
 
 userRouter.post('/signup', function(req,res) {
     res.json({

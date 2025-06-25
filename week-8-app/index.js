@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -13,7 +15,7 @@ app.use('/api/v1/course',courseRouter);
 
 async function main(){
     // instead of storing string in mongoose.connect, we should use something called dotenv
-    await mongoose.connect("");
+    await mongoose.connect(process.env.MONGO_URL);
     app.listen(3000)
 }
 

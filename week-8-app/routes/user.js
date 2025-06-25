@@ -1,12 +1,13 @@
 const { Router } = require("express");  // express contains a key called router
 const userRouter = Router();
-const { userModel } = require('../db');
+const { userModel, purchaseModel, courseModel } = require('../db');
 
 const jwt = require("jsonwebtoken");
 const { JWT_USER_PASSWORD } = require('../config');
 
 const { z } = require("zod");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
+const { endsWith } = require("zod/v4");
 
 userRouter.post('/signup', async function(req,res) {
     const requiredBody = z.object({
@@ -80,10 +81,30 @@ userRouter.post('/signin', async function(req,res) {
     }
 })
 
-userRouter.get('/purchases', function(req,res) {
+userRouter.get('/purchases', userMiddleware, async function(req,res) {
+    const userId = req.userId;
+
+    const purchases = await purchaseModel.find({
+        userId
+    })
+
+    /* 
+    alternative code for the below map approach:
+    let purchasedCourseIds = []
+    for(let i = 0; i<purchases.length; i++){
+        purchasedCourseIds.push(purchases[i].courseId)
+    }
+    and then in place of map code, we can directly pass purchasedCourseIds
+    */
+
+    const coursesData = await courseModel.find({
+        _id: { $in: purchases.map(x=>x.courseId) }      //convert the array of objects to an array of string containing courseId
+    
+    })
 
     res.json({
-        message: "purchases endpoint"
+        purchases,
+        coursesData
     })
 })
 

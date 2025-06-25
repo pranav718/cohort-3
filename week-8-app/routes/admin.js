@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const adminRouter = Router();
-const { adminModel } = require('../db');
+const { adminModel, courseModel } = require('../db');
 
 const {z} = require("zod");
 const bcrypt = require("bcrypt");
@@ -100,17 +100,37 @@ adminRouter.post('/course', adminMiddleware, async function(req,res) {
     })
 })
 
-adminRouter.put('/course', function(req,res) {
+adminRouter.put('/course', adminMiddleware, async function(req,res) {
+    const adminId = req.userId;
+
+    const { title, description, price, imageUrl, courseId } = req.body;
+
+    const course = await courseModel.updateOne({
+        _id: courseId,
+        creatorId: adminId
+    }, {
+        title: title,
+        description: description,
+        price: price,
+        imageUrl: imageUrl
+    })
 
     res.json({
-        message: "admin change details of course endpoint"
-    })
+        message: "Course updated",
+        courseId: course._id
+    })  
 })
 
-adminRouter.get('/course/bulk', function(req,res) {
+adminRouter.get('/course/bulk',adminMiddleware, async function(req,res) {
+    const adminId = req.userId;
 
+    const courses = await courseModel.find({
+        creatorId: adminId
+    })
+    
     res.json({
-        message: "admin create course endpoint"
+        message: "All courses",
+        courses
     })
 })
 

@@ -8,8 +8,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_ADMIN_PASSWORD } = require('../config');
 const { adminMiddleware } = require("../middleware/admin");
+const { rateLimitMiddleware } = require("../middleware/ratelimit");
 
-adminRouter.post('/signup', async function(req,res) {
+adminRouter.post('/signup', rateLimitMiddleware, async function(req,res) {
     const requiredBody = z.object({
             email: z.string().min(3).max(100).email(),
             password: z.string().min(5).max(15),
@@ -52,7 +53,7 @@ adminRouter.post('/signup', async function(req,res) {
     }
 })
 
-adminRouter.post('/signin', async function(req,res) {
+adminRouter.post('/signin', rateLimitMiddleware, async function(req,res) {
     const {email,password} = req.body;
 
     const admin = await adminModel.findOne({

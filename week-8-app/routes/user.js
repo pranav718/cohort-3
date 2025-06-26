@@ -1,15 +1,16 @@
 const { Router } = require("express");  // express contains a key called router
 const userRouter = Router();
 const { userModel, purchaseModel, courseModel } = require('../db');
+const { userMiddleware } = require("../middleware/user");
+const { rateLimitMiddleware } = require("../middleware/ratelimit");
 
 const jwt = require("jsonwebtoken");
 const { JWT_USER_PASSWORD } = require('../config');
 
 const { z } = require("zod");
 const bcrypt = require("bcrypt");
-const { endsWith } = require("zod/v4");
 
-userRouter.post('/signup', async function(req,res) {
+userRouter.post('/signup', rateLimitMiddleware, async function(req,res) {
     const requiredBody = z.object({
         email: z.string().min(3).max(100).email(),
         password: z.string().min(5).max(15),
@@ -53,7 +54,21 @@ userRouter.post('/signup', async function(req,res) {
 
 })
 
-userRouter.post('/signin', async function(req,res) {
+userRouter.post('/signin', rateLimitMiddleware, async function(req,res) {
+    const requiredBody = z.object({
+        email: z.string().min(5).max(15).email(),
+        password: z.string().min(5).max(20)
+    })
+
+    const parsedDataWithSuccess = requiredBody.safeParse(req.body);
+    if(!parsedDataWithSuccess){
+        res.json({
+            message: "Incorrect format",
+            error: parsedDataWithSuccess.error
+        })
+        return
+    }
+
     const {email,password} = req.body;
 
     const user = await userModel.findOne({    //either returns the user or undefined, if we use userModel.find, we will get an array 

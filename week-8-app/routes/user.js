@@ -93,12 +93,7 @@ userRouter.post('/signin', rateLimitMiddleware, async function(req,res) {
 
         // OR do cookie logic 
         // cookie logic:-
-        res.cookie("token", token, {
-            httpOnly: true,
-            sameSite: "strict", 
-            secure: process.env.NODE_ENV === "production" // true in production
-        });
-        res.json({ message: "Logged in successfully" });
+        
 
     }else{
         res.status(403).json({

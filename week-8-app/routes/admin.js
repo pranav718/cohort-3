@@ -54,6 +54,21 @@ adminRouter.post('/signup', rateLimitMiddleware, async function(req,res) {
 })
 
 adminRouter.post('/signin', rateLimitMiddleware, async function(req,res) {
+   
+   const requiredBody = z.object({
+            email: z.string().min(3).max(100).email(),
+            password: z.string().min(5).max(15)
+    })
+    
+    const parsedDataWithSuccess = requiredBody.safeParse(req.body);
+    if(!parsedDataWithSuccess){
+        res.json({
+            message: "Incorrect format",
+            error: parsedDataWithSuccess.error
+        })
+        return
+    }
+   
     const {email,password} = req.body;
 
     const admin = await adminModel.findOne({

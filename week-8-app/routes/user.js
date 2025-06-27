@@ -85,10 +85,21 @@ userRouter.post('/signin', rateLimitMiddleware, async function(req,res) {
     const passwordMatch = await bcrypt.compare(password,user.password);
     if(passwordMatch){
         const token = jwt.sign({id: user._id.toString()}, JWT_USER_PASSWORD);
-        // OR do cookie logic 
+        /*
         res.json({
             token: token
         })
+        */
+
+        // OR do cookie logic 
+        // cookie logic:-
+        res.cookie("token", token, {
+            httpOnly: true,
+            sameSite: "strict", 
+            secure: process.env.NODE_ENV === "production" // true in production
+        });
+        res.json({ message: "Logged in successfully" });
+
     }else{
         res.status(403).json({
             message: "Incorrect credentials"
